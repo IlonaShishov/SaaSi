@@ -3,6 +3,7 @@ package config
 import (
 	"io/ioutil"
 	"log"
+	"net/http"
 
 	"gopkg.in/yaml.v2"
 )
@@ -79,20 +80,35 @@ type ApplicationParams struct {
 	Value string `yaml:"value"`
 }
 
-func InitDeployerConfig(configFile string) *ComponentConfig {
+func InitDeployerConfig(byteConfig []byte) *ComponentConfig {
 
+	// Unmarshal deployer config
+	config := DeployerConfig{}
+	err := yaml.Unmarshal(byteConfig, &config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return &config.Deployer
+}
+
+func ReadConfigFile(configFile string) {
 	// read deployer config file
 	yfile, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Unmarshal deployer config
-	config := DeployerConfig{}
-	err = yaml.Unmarshal(yfile, &config)
+	InitDeployerConfig(yfile)
+}
+
+func ReadRestRequest(w http.ResponseWriter, r *http.Request) {
+	// read deployer config file
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		log.Fatal(err)
 	}
 
-	return &config.Deployer
+	InitDeployerConfig(body)
 }

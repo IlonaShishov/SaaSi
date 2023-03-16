@@ -4,13 +4,13 @@ import (
 	"log"
 	"reflect"
 
+	"github.com/RHEcosystemAppEng/SaaSi/deployer/pkg/api"
 	"github.com/RHEcosystemAppEng/SaaSi/deployer/pkg/config"
 	"github.com/RHEcosystemAppEng/SaaSi/deployer/pkg/connect"
 	"github.com/RHEcosystemAppEng/SaaSi/deployer/pkg/context"
 	"github.com/RHEcosystemAppEng/SaaSi/deployer/pkg/deployer/app/deployer"
 	"github.com/RHEcosystemAppEng/SaaSi/deployer/pkg/deployer/app/packager"
 	"github.com/RHEcosystemAppEng/SaaSi/deployer/pkg/utils"
-	"github.com/kr/pretty"
 )
 
 func main() {
@@ -20,6 +20,7 @@ func main() {
 
 	// expose REST POST service (placeholder)
 	if !flagArgs.AsCli {
+		api.HandleRequests()
 		log.Fatal("Note: start REST POST")
 	}
 
@@ -27,8 +28,9 @@ func main() {
 	flagArgs.ValidateRequiredFlagArgs()
 
 	// unmarshal deployer config and get cluster and application configs
-	componentConfig := config.InitDeployerConfig(flagArgs.ConfigFile)
-	pretty.Printf("Deploying the following configuration: \n%# v", componentConfig)
+	// componentConfig := config.InitDeployerConfig(flagArgs.ConfigFile)
+	// pretty.Printf("Deploying the following configuration: \n%# v", componentConfig)
+	config.ReadConfigFile(flagArgs.ConfigFile)
 
 	// connect to cluster
 	kubeConnection := connect.ConnectToCluster(componentConfig.ClusterConfig)
